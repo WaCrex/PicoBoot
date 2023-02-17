@@ -82,8 +82,7 @@ def bytes_to_c_array(data):
     return ["0x%08x" % int.from_bytes(b, byteorder='big', signed=False) for b in p_list]
 
 def generate_header_file(elements, executable, input_file, output_file, size):
-    output = '#include <stdio.h>\n\n'
-    output += '//\n'
+    output = '#include <stdio.h>\n\n' + '//\n'
     output += '// Command: {0} {1} {2}\n'.format(executable, input_file, output_file)
     output += '//\n'
     output += '// File: {0}, size: {1} bytes\n'.format(input_file, size)
@@ -95,7 +94,7 @@ def generate_header_file(elements, executable, input_file, output_file, size):
     for num in range(len(elements)):
         if num > 0 and num % 4 == 0:
             output += '\n\t'
-        
+
         output += elements[num]
 
         if num != len(elements):
@@ -118,9 +117,7 @@ def process_scrambled_ipl(ipl, size):
     binary = ''.join([char * 4 for char in format(out2, 'b')])
     binary = int(binary, 2)
 
-    payload = binary.to_bytes(size * 4, 'big')
-    
-    return payload
+    return binary.to_bytes(size * 4, 'big')
     
 def main():
     if len(sys.argv) != 4:
@@ -136,8 +133,8 @@ def main():
         load &= 0x017FFFFF
         size = len(img)
 
-        print(f"Entry point:   0x{entry:0{8}X}")
-        print(f"Load address:  0x{load:0{8}X}")
+        print(f"Entry point:   0x{entry:08X}")
+        print(f"Load address:  0x{load:08X}")
         print(f"Image size:    {size} bytes ({size // 1024}K)")
     else:
         print("Unknown input format")
@@ -148,8 +145,7 @@ def main():
         return -1
 
     payload = bytearray(0x700) + bytearray(payload_padding)+ img
-    payload_size = size + 0x20; # there are 32 bytes of additional padding needed 
-
+    payload_size = size + 0x20
     if payload_size % 1024 != 0:
         new_size_k = math.ceil(payload_size / 1024)
         new_size = new_size_k * 1024
